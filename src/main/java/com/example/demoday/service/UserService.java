@@ -1,5 +1,8 @@
 package com.example.demoday.service;
 
+import com.example.demoday.entity.TestAnswer;
+import com.example.demoday.repository.TestAnswerRepository;
+import com.example.demoday.dto.TestAnswerDTO;
 import com.example.demoday.entity.User;
 import com.example.demoday.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,10 +16,13 @@ import java.util.Random;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final TestAnswerRepository testAnswerRepository;
 
     @Autowired
-    public UserService(UserRepository userRepository) {
+    public UserService(UserRepository userRepository, TestAnswerRepository testAnswerRepository) {
+
         this.userRepository = userRepository;
+        this.testAnswerRepository = testAnswerRepository;
     }
 
     // 모든 사용자 데이터 조회
@@ -54,6 +60,35 @@ public class UserService {
         int matchedIndex = random.nextInt(allUsers.size());
 
         return allUsers.get(matchedIndex);
+    }
+
+    // 테스트 답안 저장
+    public boolean saveTestAnswers(TestAnswerDTO testAnswerDTO) {
+        Optional<User> user = userRepository.findById(testAnswerDTO.getUserId());
+        if (user.isPresent()) {
+            // 사용자가 존재하는 경우
+            User foundUser = user.get();
+
+            // 여러 개의 답변을 저장
+            for (TestAnswerDTO.AnswerDTO answerDTO : testAnswerDTO.getAnswers()) {
+                TestAnswer testAnswer = new TestAnswer();
+                testAnswer.setUser(foundUser);
+                testAnswer.setAnswer(answerDTO.getAnswer());
+                testAnswer.setQuestionNumber(answerDTO.getQuestionNumber());  // 질문 번호 추가
+
+                testAnswerRepository.save(testAnswer);
+            }
+
+            return true; // 저장 성공
+        } else {
+            // 사용자가 존재하지 않는 경우
+            return false; // 저장 실패
+        }
+    }
+
+    // 답변 조회
+    public List<TestAnswer> getTestAnswersByUserId(Long userId) {
+        return testAnswerRepository.findByUserId(userId); // 특정 사용자의 답변 목록 반환
     }
 
     public void deleteAllUsers() {
