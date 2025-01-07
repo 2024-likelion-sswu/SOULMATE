@@ -2,6 +2,7 @@ package com.example.demoday.controller;
 
 import com.example.demoday.entity.User;
 import com.example.demoday.service.UserService;
+import com.example.demoday.dto.MatchedUserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -42,5 +43,25 @@ public class UserController {
     @GetMapping
     public List<User> getAllUsers() {
         return userService.getAllUsers();
+    }
+
+    // 특정 사용자에 매칭된 상대방의 이름과 나이만 반환
+    @GetMapping("/match/{userId}")
+    public ResponseEntity<?> getMatchedUser(@PathVariable Long userId) {
+        User matchedUser = userService.findMatchedUser(userId);
+
+        if (matchedUser != null) {
+            // 이름과 나이만 반환
+            return ResponseEntity.ok(new MatchedUserDTO(matchedUser.getName(), matchedUser.getAge()));
+        } else {
+            return ResponseEntity.status(404).body("No matched user found.");
+        }
+    }
+
+    // 모든 사용자 데이터 삭제
+    @DeleteMapping("/all")
+    public ResponseEntity<String> deleteAllUsers() {
+        userService.deleteAllUsers(); // UserService에 삭제 로직 추가
+        return ResponseEntity.ok("All user data has been deleted.");
     }
 }
