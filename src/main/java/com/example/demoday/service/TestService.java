@@ -46,19 +46,19 @@ public class TestService {
         testAnswerRepository.save(newAnswer);
     }
 
-    // 궁합도 계산 및 결과 저장
-    public boolean calculateCompatibility() {
+    // 궁합도 계산 및 결과 반환
+    public TestResultDTO calculateAndFetchResult() {
         // 모든 사용자의 답안 가져오기
         List<TestAnswer> allAnswers = testAnswerRepository.findAll();
 
         if (allAnswers.size() != 2) {
-            System.out.println("Error: Exactly 2 users are required to calculate compatibility.");
-            return false;
+            System.out.println("Error: There must be exactly 2 users to calculate compatibility.");
+            return null;
         }
 
         // 사용자 1과 사용자 2 가져오기
-        TestAnswer user1Answer = allAnswers.get(0); // 첫 번째 사용자
-        TestAnswer user2Answer = allAnswers.get(1); // 두 번째 사용자
+        TestAnswer user1Answer = allAnswers.get(0);
+        TestAnswer user2Answer = allAnswers.get(1);
 
         Long user1Id = user1Answer.getUserId();
         Long user2Id = user2Answer.getUserId();
@@ -96,22 +96,13 @@ public class TestService {
         }
         testResultRepository.save(user2Result);
 
-        return true;
-    }
-
-    // 테스트 결과 조회
-    public TestResultDTO getTestResult(Long userId) {
-        TestResult testResult = testResultRepository.findByUserId(userId);
-        if (testResult == null) {
-            return null;
-        }
-
-        User matchedUser = userRepository.findById(testResult.getMatchedUserId()).orElse(null);
+        // 상대방 정보 반환 (사용자 1 기준)
+        User matchedUser = userRepository.findById(user2Id).orElse(null);
         if (matchedUser == null) {
             return null;
         }
 
-        if (testResult.getCompatibilityScore() >= 50) {
+        if (compatibilityScore >= 50) {
             MatchedUserDTO matchedUserDTO = new MatchedUserDTO(
                     matchedUser.getName(),
                     matchedUser.getAge(),
@@ -122,13 +113,13 @@ public class TestService {
                     matchedUser.getIdealType()
             );
             return new TestResultDTO(
-                    testResult.getCompatibilityScore(),
+                    compatibilityScore,
                     matchedUserDTO,
                     "Congratulations! Your soulmate is revealed!"
             );
         } else {
             return new TestResultDTO(
-                    testResult.getCompatibilityScore(),
+                    compatibilityScore,
                     null,
                     "Sorry, compatibility is below 50%. No details revealed."
             );

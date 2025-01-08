@@ -25,25 +25,14 @@ public class TestController {
         return ResponseEntity.ok("Test answers submitted successfully!");
     }
 
-    // 궁합도 계산
-    @PostMapping("/calculate")
-    public ResponseEntity<String> calculateCompatibility() {
-        boolean isCalculated = testService.calculateCompatibility();
-        if (isCalculated) {
-            return ResponseEntity.ok("Compatibility calculation completed!");
-        } else {
-            return ResponseEntity.badRequest().body("Error: Exactly 2 users are required to calculate compatibility.");
-        }
-    }
-
-    // 테스트 결과 및 상대방 정보 반환
-    @GetMapping("/result/{userId}")
-    public ResponseEntity<TestResultDTO> getTestResult(@PathVariable Long userId) {
-        TestResultDTO result = testService.getTestResult(userId);
+    // 테스트 결과 조회 및 궁합도 계산
+    @GetMapping("/result")
+    public ResponseEntity<TestResultDTO> getTestResult() {
+        TestResultDTO result = testService.calculateAndFetchResult();
         if (result != null) {
             return ResponseEntity.ok(result);
         } else {
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.badRequest().body(null);
         }
     }
 }
