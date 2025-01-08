@@ -1,12 +1,15 @@
 package com.example.demoday.controller;
 
 import com.example.demoday.entity.User;
+import com.example.demoday.service.FileService;
 import com.example.demoday.service.UserService;
 import com.example.demoday.dto.MatchedUserDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -14,16 +17,38 @@ import java.util.List;
 public class UserController {
 
     private final UserService userService;
+    private final FileService fileService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public UserController(UserService userService, FileService fileService) {
         this.userService = userService;
+        this.fileService = fileService;
     }
 
     // 사용자 정보 저장
     @PostMapping
-    public ResponseEntity<String> createUser(@RequestBody User user) {
+    public ResponseEntity<String> createUser(
+            @RequestParam("name") String name,
+            @RequestParam("age") int age,
+            @RequestParam("residence") String residence,
+            @RequestParam("phoneNumber") String phoneNumber,
+            @RequestParam("instagramNickname") String instagramNickname,
+            @RequestParam("personality") String personality,
+            @RequestParam("idealType") String idealType,
+            @RequestParam(value = "profilePhoto", required = false) MultipartFile profilePhoto
+    ) {
+        String profilePhotoPath = null;
+        if (profilePhoto != null && !profilePhoto.isEmpty()) {
+            try {
+                profilePhotoPath = fileService.saveFile(profilePhoto);
+            } catch (IOException e) {
+                return ResponseEntity.badRequest().body("Failed to save profile photo: " + e.getMessage());
+            }
+        }
+
+        User user = new User(name, age, residence, phoneNumber, instagramNickname, personality, idealType, profilePhotoPath);
         userService.saveUser(user);
+
         return ResponseEntity.ok("User information has been registered successfully!");
     }
 
@@ -54,8 +79,8 @@ public class UserController {
             MatchedUserDTO matchedUserDTO = new MatchedUserDTO(
                     matchedUser.getName(),
                     matchedUser.getAge(),
-                    matchedUser.getProfilePhoto(),
-                    null, null, null, null, null
+                    null, null, null, null, null,
+                    matchedUser.getProfilePhoto()
             );
             return ResponseEntity.ok(matchedUserDTO);
         } else {
