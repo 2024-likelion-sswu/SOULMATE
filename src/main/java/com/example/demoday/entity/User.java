@@ -30,11 +30,14 @@ public class User {
     @Column(name = "ideal_type")
     private String idealType;
 
+    @Column(name = "profile_photo")
+    private String profilePhoto;
+
     // 기본 생성자
     public User() {}
 
     // 모든 필드를 포함한 생성자
-    public User(String name, int age, String residence, String phoneNumber, String instagramNickname, String personality, String idealType) {
+    public User(String name, int age, String residence, String phoneNumber, String instagramNickname, String personality, String idealType, String profilePhoto) {
         this.name = name;
         this.age = age;
         this.residence = residence;
@@ -42,6 +45,7 @@ public class User {
         this.instagramNickname = instagramNickname;
         this.personality = personality;
         this.idealType = idealType;
+        this.profilePhoto = profilePhoto;
     }
 
     // Getter and Setter
@@ -103,5 +107,13 @@ public class User {
 
     public void setIdealType(String idealType) {
         this.idealType = idealType;
+    }
+
+    public String getProfilePhoto() {
+        return profilePhoto;
+    }
+
+    public void setProfilePhoto(String profilePhoto) {
+        this.profilePhoto = profilePhoto;
     }
 }

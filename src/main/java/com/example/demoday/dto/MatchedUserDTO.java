@@ -8,8 +8,9 @@ public class MatchedUserDTO {
     private String instagramNickname;
     private String personality;
     private String idealType;
+    private String profilePhoto;
 
-    public MatchedUserDTO(String name, int age, String residence, String phoneNumber, String instagramNickname, String personality, String idealType) {
+    public MatchedUserDTO(String name, int age, String residence, String phoneNumber, String instagramNickname, String personality, String idealType, String profilePhoto) {
         this.name = name;
         this.age = age;
         this.residence = residence;
@@ -17,6 +18,7 @@ public class MatchedUserDTO {
         this.instagramNickname = instagramNickname;
         this.personality = personality;
         this.idealType = idealType;
+        this.profilePhoto = profilePhoto;
     }
 
     // Getter and Setter
@@ -74,5 +76,13 @@ public class MatchedUserDTO {
 
     public void setIdealType(String idealType) {
         this.idealType = idealType;
+    }
+
+    public String getProfilePhoto() {
+        return profilePhoto;
+    }
+
+    public void setProfilePhoto(String profilePhoto) {
+        this.profilePhoto = profilePhoto;
     }
 }

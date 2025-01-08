@@ -110,7 +110,8 @@ public class TestService {
                     matchedUser.getPhoneNumber(),
                     matchedUser.getInstagramNickname(),
                     matchedUser.getPersonality(),
-                    matchedUser.getIdealType()
+                    matchedUser.getIdealType(),
+                    matchedUser.getProfilePhoto()
             );
             return new TestResultDTO(
                     compatibilityScore,

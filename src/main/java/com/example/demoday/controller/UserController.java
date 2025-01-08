@@ -44,7 +44,7 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    // 특정 사용자에 매칭된 상대방의 이름과 나이만 반환
+    // 특정 사용자에 매칭된 상대방의 프로필 사진 및 이름과 나이만 반환
     @GetMapping("/match/{userId}")
     public ResponseEntity<?> getMatchedUser(@PathVariable Long userId) {
         User matchedUser = userService.findMatchedUser(userId);
@@ -54,6 +54,7 @@ public class UserController {
             MatchedUserDTO matchedUserDTO = new MatchedUserDTO(
                     matchedUser.getName(),
                     matchedUser.getAge(),
+                    matchedUser.getProfilePhoto(),
                     null, null, null, null, null
             );
             return ResponseEntity.ok(matchedUserDTO);
