@@ -47,47 +47,56 @@ public class TestService {
     }
 
     // 궁합도 계산 및 결과 저장
-    public void calculateCompatibility(Long userId) {
-        // 사용자 답안 가져오기
-        List<TestAnswer> userAnswersList = testAnswerRepository.findByUserId(userId);
-        if (userAnswersList.isEmpty()) return;
+    public boolean calculateCompatibility() {
+        // 모든 사용자의 답안 가져오기
+        List<TestAnswer> allAnswers = testAnswerRepository.findAll();
 
-        TestAnswer userAnswer = userAnswersList.get(0);
+        if (allAnswers.size() != 2) {
+            System.out.println("Error: Exactly 2 users are required to calculate compatibility.");
+            return false;
+        }
 
-        // 매칭 상대방 찾기
-        List<User> allUsers = userRepository.findAll();
-        allUsers.removeIf(user -> user.getId().equals(userId)); // 본인 제외
-        if (allUsers.isEmpty()) return;
+        // 사용자 1과 사용자 2 가져오기
+        TestAnswer user1Answer = allAnswers.get(0); // 첫 번째 사용자
+        TestAnswer user2Answer = allAnswers.get(1); // 두 번째 사용자
 
-        User matchedUser = allUsers.get(0); // 첫 번째 상대방 매칭
-        List<TestAnswer> matchedAnswersList = testAnswerRepository.findByUserId(matchedUser.getId());
-        if (matchedAnswersList.isEmpty()) return;
+        Long user1Id = user1Answer.getUserId();
+        Long user2Id = user2Answer.getUserId();
 
-        TestAnswer matchedUserAnswer = matchedAnswersList.get(0);
+        List<Integer> user1Answers = user1Answer.getAnswers();
+        List<Integer> user2Answers = user2Answer.getAnswers();
 
         // 궁합도 계산
-        List<Integer> userAnswers = userAnswer.getAnswers();
-        List<Integer> matchedUserAnswers = matchedUserAnswer.getAnswers();
         int matchingAnswers = 0;
-
-        for (int i = 0; i < userAnswers.size(); i++) {
-            if (userAnswers.get(i).equals(matchedUserAnswers.get(i))) {
+        for (int i = 0; i < user1Answers.size(); i++) {
+            if (user1Answers.get(i).equals(user2Answers.get(i))) {
                 matchingAnswers++;
             }
         }
 
-        int compatibilityScore = (matchingAnswers * 100) / userAnswers.size();
+        int compatibilityScore = (matchingAnswers * 100) / user1Answers.size();
 
-        // 기존 TestResult 데이터 삭제 또는 업데이트
-        TestResult existingResult = testResultRepository.findByUserId(userId);
-        if (existingResult != null) {
-            existingResult.setMatchedUserId(matchedUser.getId());
-            existingResult.setCompatibilityScore(compatibilityScore);
-            testResultRepository.save(existingResult); // 업데이트
+        // TestResult 업데이트 또는 새로 저장 (사용자 1)
+        TestResult user1Result = testResultRepository.findByUserId(user1Id);
+        if (user1Result == null) {
+            user1Result = new TestResult(user1Id, user2Id, compatibilityScore);
         } else {
-            TestResult newResult = new TestResult(userId, matchedUser.getId(), compatibilityScore);
-            testResultRepository.save(newResult); // 새로 저장
+            user1Result.setMatchedUserId(user2Id);
+            user1Result.setCompatibilityScore(compatibilityScore);
         }
+        testResultRepository.save(user1Result);
+
+        // TestResult 업데이트 또는 새로 저장 (사용자 2)
+        TestResult user2Result = testResultRepository.findByUserId(user2Id);
+        if (user2Result == null) {
+            user2Result = new TestResult(user2Id, user1Id, compatibilityScore);
+        } else {
+            user2Result.setMatchedUserId(user1Id);
+            user2Result.setCompatibilityScore(compatibilityScore);
+        }
+        testResultRepository.save(user2Result);
+
+        return true;
     }
 
     // 테스트 결과 조회
