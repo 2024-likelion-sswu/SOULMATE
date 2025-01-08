@@ -8,8 +8,11 @@ public class MatchedUserDTO {
     private String instagramNickname;
     private String personality;
     private String idealType;
+    private String profileImage; // 프로필 이미지 추가
 
-    public MatchedUserDTO(String name, int age, String residence, String phoneNumber, String instagramNickname, String personality, String idealType) {
+    public MatchedUserDTO(String name, int age, String residence, String phoneNumber,
+                          String instagramNickname, String personality,
+                          String idealType, String profileImage) {
         this.name = name;
         this.age = age;
         this.residence = residence;
@@ -17,6 +20,7 @@ public class MatchedUserDTO {
         this.instagramNickname = instagramNickname;
         this.personality = personality;
         this.idealType = idealType;
+        this.profileImage = profileImage; // 추가
     }
 
     // Getter and Setter
@@ -74,5 +78,13 @@ public class MatchedUserDTO {
 
     public void setIdealType(String idealType) {
         this.idealType = idealType;
+    }
+
+    public String getProfileImage() {
+        return profileImage;
+    }
+
+    public void setProfileImage(String profileImage) {
+        this.profileImage = profileImage;
     }
 }

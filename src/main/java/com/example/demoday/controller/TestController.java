@@ -25,14 +25,14 @@ public class TestController {
         return ResponseEntity.ok("Test answers submitted successfully!");
     }
 
-    // 테스트 결과 조회 및 궁합도 계산
+    // 궁합도 계산 및 결과 반환
     @GetMapping("/result")
-    public ResponseEntity<TestResultDTO> getTestResult() {
-        TestResultDTO result = testService.calculateAndFetchResult();
+    public ResponseEntity<TestResultDTO> calculateAndFetchResult() {
+        TestResultDTO result = testService.calculateAndFetchResult(); // 궁합도 계산과 결과 반환
         if (result != null) {
             return ResponseEntity.ok(result);
         } else {
-            return ResponseEntity.badRequest().body(null);
+            return ResponseEntity.status(404).body(null);
         }
     }
 }

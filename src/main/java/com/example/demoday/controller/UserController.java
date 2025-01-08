@@ -50,11 +50,15 @@ public class UserController {
         User matchedUser = userService.findMatchedUser(userId);
 
         if (matchedUser != null) {
-            // 이름과 나이만 반환
             MatchedUserDTO matchedUserDTO = new MatchedUserDTO(
                     matchedUser.getName(),
                     matchedUser.getAge(),
-                    null, null, null, null, null
+                    matchedUser.getResidence(),
+                    matchedUser.getPhoneNumber(),
+                    matchedUser.getInstagramNickname(),
+                    matchedUser.getPersonality(),
+                    matchedUser.getIdealType(),
+                    matchedUser.getProfileImage() // 프로필 이미지 포함
             );
             return ResponseEntity.ok(matchedUserDTO);
         } else {

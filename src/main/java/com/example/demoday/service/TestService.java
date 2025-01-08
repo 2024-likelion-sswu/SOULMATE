@@ -103,6 +103,7 @@ public class TestService {
         }
 
         if (compatibilityScore >= 50) {
+            // MatchedUserDTO의 올바른 생성자 호출
             MatchedUserDTO matchedUserDTO = new MatchedUserDTO(
                     matchedUser.getName(),
                     matchedUser.getAge(),
@@ -110,7 +111,8 @@ public class TestService {
                     matchedUser.getPhoneNumber(),
                     matchedUser.getInstagramNickname(),
                     matchedUser.getPersonality(),
-                    matchedUser.getIdealType()
+                    matchedUser.getIdealType(),
+                    matchedUser.getProfileImage() // 프로필 이미지 포함
             );
             return new TestResultDTO(
                     compatibilityScore,
