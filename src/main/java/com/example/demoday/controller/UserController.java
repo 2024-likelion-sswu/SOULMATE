@@ -23,7 +23,6 @@ public class UserController {
     // 사용자 정보 저장
     @PostMapping
     public ResponseEntity<String> createUser(@RequestBody User user) {
-        System.out.println("Received User: " + user);
         userService.saveUser(user);
         return ResponseEntity.ok("User information has been registered successfully!");
     }
@@ -52,7 +51,12 @@ public class UserController {
 
         if (matchedUser != null) {
             // 이름과 나이만 반환
-            return ResponseEntity.ok(new MatchedUserDTO(matchedUser.getName(), matchedUser.getAge()));
+            MatchedUserDTO matchedUserDTO = new MatchedUserDTO(
+                    matchedUser.getName(),
+                    matchedUser.getAge(),
+                    null, null, null, null, null
+            );
+            return ResponseEntity.ok(matchedUserDTO);
         } else {
             return ResponseEntity.status(404).body("No matched user found.");
         }
@@ -61,7 +65,7 @@ public class UserController {
     // 모든 사용자 데이터 삭제
     @DeleteMapping("/all")
     public ResponseEntity<String> deleteAllUsers() {
-        userService.deleteAllUsers(); // UserService에 삭제 로직 추가
+        userService.deleteAllUsers();
         return ResponseEntity.ok("All user data has been deleted.");
     }
 }

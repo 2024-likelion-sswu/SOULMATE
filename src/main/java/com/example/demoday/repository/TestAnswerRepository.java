@@ -2,9 +2,9 @@ package com.example.demoday.repository;
 
 import com.example.demoday.entity.TestAnswer;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
 
-@Repository
+import java.util.List;
+
 public interface TestAnswerRepository extends JpaRepository<TestAnswer, Long> {
-    TestAnswer findByUserId(Long userId);
+    List<TestAnswer> findByUserId(Long userId); // 단일 결과에서 다중 결과로 변경
 }

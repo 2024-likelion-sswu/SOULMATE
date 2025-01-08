@@ -26,6 +26,7 @@ public class TestResult {
         this.compatibilityScore = compatibilityScore;
     }
 
+    // Getter methods
     public Long getId() {
         return id;
     }
@@ -40,5 +41,18 @@ public class TestResult {
 
     public int getCompatibilityScore() {
         return compatibilityScore;
+    }
+
+    // Setter methods
+    public void setUserId(Long userId) {
+        this.userId = userId;
+    }
+
+    public void setMatchedUserId(Long matchedUserId) {
+        this.matchedUserId = matchedUserId;
+    }
+
+    public void setCompatibilityScore(int compatibilityScore) {
+        this.compatibilityScore = compatibilityScore;
     }
 }

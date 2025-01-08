@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import java.util.List;
 
 @Entity
+@Table(name = "test_answer") // 엔티티 테이블 이름 명시
 public class TestAnswer {
 
     @Id
@@ -14,7 +15,10 @@ public class TestAnswer {
     private Long userId;
 
     @ElementCollection
-    @CollectionTable(name = "test_answers", joinColumns = @JoinColumn(name = "test_id"))
+    @CollectionTable(
+            name = "test_answer_details", // 컬렉션 테이블 이름 명시
+            joinColumns = @JoinColumn(name = "test_id")
+    )
     @Column(name = "answer")
     private List<Integer> answers;
 
@@ -41,3 +45,4 @@ public class TestAnswer {
         this.answers = answers;
     }
 }
+

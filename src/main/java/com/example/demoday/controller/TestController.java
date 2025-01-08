@@ -21,8 +21,15 @@ public class TestController {
     // 테스트 답안 제출
     @PostMapping
     public ResponseEntity<String> submitTestAnswers(@RequestBody TestAnswerDTO testAnswerDTO) {
-        testService.calculateCompatibility(testAnswerDTO);
+        testService.saveTestAnswers(testAnswerDTO); // 기존 오류 수정: 메서드 호출을 올바르게 변경
         return ResponseEntity.ok("Test answers submitted successfully!");
+    }
+
+    // 궁합도 계산
+    @PostMapping("/calculate/{userId}")
+    public ResponseEntity<String> calculateCompatibility(@PathVariable Long userId) {
+        testService.calculateCompatibility(userId); // 사용자 ID로 궁합도 계산
+        return ResponseEntity.ok("Compatibility calculation completed!");
     }
 
     // 테스트 결과 및 상대방 정보 반환

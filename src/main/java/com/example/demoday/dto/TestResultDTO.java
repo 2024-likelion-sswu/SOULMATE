@@ -11,15 +11,28 @@ public class TestResultDTO {
         this.message = message;
     }
 
+    // Getter and Setter
     public int getCompatibilityScore() {
         return compatibilityScore;
+    }
+
+    public void setCompatibilityScore(int compatibilityScore) {
+        this.compatibilityScore = compatibilityScore;
     }
 
     public MatchedUserDTO getMatchedUser() {
         return matchedUser;
     }
 
+    public void setMatchedUser(MatchedUserDTO matchedUser) {
+        this.matchedUser = matchedUser;
+    }
+
     public String getMessage() {
         return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message;
     }
 }

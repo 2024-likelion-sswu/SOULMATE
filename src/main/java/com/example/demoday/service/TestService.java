@@ -12,10 +12,7 @@ import com.example.demoday.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
-import java.util.Random;
 
 @Service
 public class TestService {
@@ -33,66 +30,94 @@ public class TestService {
         this.testAnswerRepository = testAnswerRepository;
     }
 
-    // 테스트 답안 제출 및 궁합도 계산
-    public void calculateCompatibility(TestAnswerDTO testAnswerDTO) {
+    // 테스트 답안 저장
+    public void saveTestAnswers(TestAnswerDTO testAnswerDTO) {
         Long userId = testAnswerDTO.getUserId();
         List<Integer> userAnswers = testAnswerDTO.getAnswers();
 
-        // 매칭된 상대방 찾기
-        List<User> allUsers = userRepository.findAll();
-        allUsers.removeIf(user -> user.getId().equals(userId)); // 본인을 제외한 사용자만 매칭 대상
-        if (allUsers.isEmpty()) return; // 매칭 상대가 없으면 종료
-
-        Random random = new Random();
-        User matchedUser = allUsers.get(random.nextInt(allUsers.size()));
-
-        // 상대방의 랜덤 답안 생성 (테스트용)
-        List<Integer> matchedUserAnswers = new ArrayList<>();
-        for (int i = 0; i < 10; i++) {
-            matchedUserAnswers.add(random.nextInt(2) + 1); // 1 또는 2
+        // 기존 답안을 삭제
+        List<TestAnswer> existingAnswers = testAnswerRepository.findByUserId(userId);
+        if (!existingAnswers.isEmpty()) {
+            testAnswerRepository.deleteAll(existingAnswers);
         }
 
-        // 궁합도 계산 (일치하는 답변 수를 기반으로 계산)
+        // 새로운 답안 저장
+        TestAnswer newAnswer = new TestAnswer(userId, userAnswers);
+        testAnswerRepository.save(newAnswer);
+    }
+
+    // 궁합도 계산 및 결과 저장
+    public void calculateCompatibility(Long userId) {
+        // 사용자 답안 가져오기
+        List<TestAnswer> userAnswersList = testAnswerRepository.findByUserId(userId);
+        if (userAnswersList.isEmpty()) return;
+
+        TestAnswer userAnswer = userAnswersList.get(0);
+
+        // 매칭 상대방 찾기
+        List<User> allUsers = userRepository.findAll();
+        allUsers.removeIf(user -> user.getId().equals(userId)); // 본인 제외
+        if (allUsers.isEmpty()) return;
+
+        User matchedUser = allUsers.get(0); // 첫 번째 상대방 매칭
+        List<TestAnswer> matchedAnswersList = testAnswerRepository.findByUserId(matchedUser.getId());
+        if (matchedAnswersList.isEmpty()) return;
+
+        TestAnswer matchedUserAnswer = matchedAnswersList.get(0);
+
+        // 궁합도 계산
+        List<Integer> userAnswers = userAnswer.getAnswers();
+        List<Integer> matchedUserAnswers = matchedUserAnswer.getAnswers();
         int matchingAnswers = 0;
-        for (int i = 0; i < 10; i++) {
+
+        for (int i = 0; i < userAnswers.size(); i++) {
             if (userAnswers.get(i).equals(matchedUserAnswers.get(i))) {
                 matchingAnswers++;
             }
         }
-        int compatibilityScore = (matchingAnswers * 100) / 10; // 궁합도를 퍼센트로 계산
 
-        // 테스트 결과 저장
-        TestResult testResult = new TestResult(userId, matchedUser.getId(), compatibilityScore);
+        int compatibilityScore = (matchingAnswers * 100) / userAnswers.size();
 
-        // 디버깅용 로그 추가
-        System.out.println("TestResult: " + testResult.getUserId() + ", " + testResult.getMatchedUserId() + ", " + testResult.getCompatibilityScore());
-
-        testResultRepository.save(testResult);
+        // 기존 TestResult 데이터 삭제 또는 업데이트
+        TestResult existingResult = testResultRepository.findByUserId(userId);
+        if (existingResult != null) {
+            existingResult.setMatchedUserId(matchedUser.getId());
+            existingResult.setCompatibilityScore(compatibilityScore);
+            testResultRepository.save(existingResult); // 업데이트
+        } else {
+            TestResult newResult = new TestResult(userId, matchedUser.getId(), compatibilityScore);
+            testResultRepository.save(newResult); // 새로 저장
+        }
     }
 
     // 테스트 결과 조회
     public TestResultDTO getTestResult(Long userId) {
         TestResult testResult = testResultRepository.findByUserId(userId);
         if (testResult == null) {
-            return null; // 테스트 결과가 없으면 null 반환
+            return null;
         }
 
         User matchedUser = userRepository.findById(testResult.getMatchedUserId()).orElse(null);
         if (matchedUser == null) {
-            return null; // 매칭된 사용자가 없으면 null 반환
+            return null;
         }
 
         if (testResult.getCompatibilityScore() >= 50) {
-            // 궁합도 50% 이상일 경우 상대방 정보 공개
             MatchedUserDTO matchedUserDTO = new MatchedUserDTO(
-                    matchedUser.getName(), matchedUser.getAge());
+                    matchedUser.getName(),
+                    matchedUser.getAge(),
+                    matchedUser.getResidence(),
+                    matchedUser.getPhoneNumber(),
+                    matchedUser.getInstagramNickname(),
+                    matchedUser.getPersonality(),
+                    matchedUser.getIdealType()
+            );
             return new TestResultDTO(
                     testResult.getCompatibilityScore(),
                     matchedUserDTO,
                     "Congratulations! Your soulmate is revealed!"
             );
         } else {
-            // 궁합도 50% 미만일 경우 상대방 정보 비공개
             return new TestResultDTO(
                     testResult.getCompatibilityScore(),
                     null,
